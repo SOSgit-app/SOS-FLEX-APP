@@ -13,8 +13,8 @@ A Flask application for scheduling FLEX activities.
 
 1. Clone the repository:
 ```powershell
-git clone https://github.com/yourusername/flex-scheduler-app.git
-cd flex-scheduler-app
+git clone https://github.com/SOSgit-app/SOS-FLEX-APP.git
+cd SOS-FLEX-APP
 ```
 
 2. Create and activate a virtual environment:
@@ -74,12 +74,14 @@ gcloud run deploy flex-scheduler --image gcr.io/flex-scheduler-app/flex-schedule
 ## Project Structure
 
 ```
-flex-scheduler-app/
+SOS-FLEX-APP/
 ├── app.py              # Main Flask application
 ├── requirements.txt    # Python dependencies
 ├── Dockerfile         # Container configuration
 ├── static/            # Static files (CSS, JS, etc.)
-└── templates/         # HTML templates
+├── templates/         # HTML templates
+├── public/            # Public assets
+└── src/               # Source components
 ```
 
 ## Development vs Production
@@ -101,4 +103,4 @@ If you get a PowerShell execution policy error when activating the virtual envir
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
-If you get Docker permission errors, make sure Docker Desktop is running and you're in the docker-users group. 
+If you get Docker permission errors, make sure Docker Desktop is running and you're in the docker-users group.
