@@ -1,0 +1,18 @@
+<!-- existing HTML code... -->
+
+<!-- Assuming you have a section where the schedule is displayed -->
+<div class="schedule-container">
+    <!-- Code to display the schedule -->
+</div>
+
+<!-- Add this button at the bottom of the schedule page -->
+<div class="download-button-container" style="margin-top: 20px;">
+    <a href="{{ url_for('download_schedule') }}" class="btn btn-primary">Download Schedule as CSV</a>
+</div>
+
+<!-- Add this at the bottom of your schedule page -->
+<form action="{{ url_for('download_schedule') }}" method="get">
+    <button type="submit">Download Schedule as CSV</button>
+</form>
+
+<!-- existing HTML code... --> 

@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flex A Schedule</title>
+    <style>
+        body {
+            background-color: #1a2f5a;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .schedule-info {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .field-section {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        th {
+            background-color: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+        }
+        .knights {
+            background-color: #FFFFFF;
+            color: #FF0000;
+        }
+        .bulls {
+            background-color: #4B0F0F;
+            color: #FFA500;
+        }
+        .centurions {
+            background-color: #228B22;
+            color: #FFFF00;
+        }
+        .tigers {
+            background-color: #E65100;
+            color: #000000;
+        }
+        .field-flights {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        .vs {
+            margin: 0 10px;
+            color: #ffffff;
+        }
+        .return-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #af9b62;
+            color: #1a2f5a;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .return-button:hover {
+            background-color: #c5b178;
+        }
+        .match-row {
+            cursor: move;
+        }
+        
+        .match-row:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .match-row.dragging {
+            opacity: 0.5;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .match-row.drag-over {
+            border-top: 2px solid #af9b62;
+        }
+        .update-time-button {
+            padding: 8px 16px;
+            background-color: #af9b62;
+            color: #1a2f5a;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.2s;
+        }
+        .update-time-button:hover {
+            background-color: #c5b178;
+        }
+        .time-adjust-form {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .time-adjust-form input[type="time"] {
+            padding: 8px;
+            border: 2px solid #ffffff;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 4px;
+        }
+        .upload-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2d5a27;  /* Dark green */
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer;
+            border: none;
+        }
+        
+        .upload-btn:hover {
+            background-color: #3a7334;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .upload-form {
+            display: inline;
+        }
+        
+        #file-upload {
+            display: none;
+        }
+        .referee-section {
+            margin-bottom: 15px;
+        }
+        
+        .referee-list {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 5px;
+            min-height: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .referee-entry {
+            padding: 8px;
+            margin: 4px 0;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-left: 25px;
+            margin-left: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            user-select: none;
+            color: #aaa;
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            left: 0;
+            height: 18px;
+            width: 18px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #af9b62;
+            border-color: #af9b62;
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .checkbox-container .checkmark:after {
+            left: 6px;
+            top: 2px;
+            width: 4px;
+            height: 9px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .referee-entry {
+            padding: 8px 12px;
+            margin: 4px 0;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .add-referee-btn {
+            padding: 6px 12px;
+            background-color: #af9b62;
+            color: #1a2f5a;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.2s;
+        }
+
+        .add-referee-btn:hover {
+            background-color: #c5b178;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: #1a2f5a;
+            padding: 20px;
+            border-radius: 8px;
+            min-width: 300px;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .modal-input {
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .modal-btn.confirm {
+            background-color: #af9b62;
+            color: #1a2f5a;
+        }
+
+        .modal-btn.confirm:hover {
+            background-color: #c5b178;
+        }
+
+        .modal-btn.cancel {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .modal-btn.cancel:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .delete-referee-btn {
+            background: none;
+            border: none;
+            color: #ff4444;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 10px;
+            margin-right: 10px;
+            line-height: 1;
+        }
+
+        .delete-referee-btn:hover {
+            color: #ff0000;
+        }
+
+        /* Add styles for input fields with squadron colors */
+        input.knights {
+            background-color: #FFFFFF;
+            color: #FF0000;
+        }
+        input.bulls {
+            background-color: #4B0F0F;
+            color: #FFA500;
+        }
+        input.centurions {
+            background-color: #228B22;
+            color: #FFFF00;
+        }
+        input.tigers {
+            background-color: #E65100;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FLEX SCHEDULE</h1>
+        
+        <div class="schedule-info">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h1 style="margin: 0;">Sample Class</h1>
+                <form method="POST" action="regenerate_schedule?flex_b=false" style="display: inline;">
+                    <button type="submit" class="return-button" style="background-color: #e74c3c;">
+                        REGENERATE SCHEDULE
+                    </button>
+                </form>
+            </div>
+            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
+                <div>
+                    <strong>Start Time:</strong> 08:00
+                    <form class="time-adjust-form" onsubmit="return adjustStartTime(event)">
+                        <input type="time" id="new_start_time" name="new_start_time" value="08:00" required>
+                        <button type="submit" class="update-time-button">UPDATE START TIME</button>
+                    </form>
+                </div>
+                <div style="margin-left: auto; display: flex; gap: 10px;">
+                    <a href="/" class="return-button">RETURN TO START</a>
+                </div>
+            </div>
+            <div>Total Selected Flights: 0</div>
+        </div>
+
+        
+        <div class="field-section" id="field-1">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>Field 1</h2>
+                <div style="width: 120px;"><!-- Empty div for balance --></div>
+            </div>
+            
+            <div class="referee-section" style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong>Referees:</strong>
+                    <button type="button" class="add-referee-btn" onclick="showAddRefereeModal(1)">Add Referee</button>
+                </div>
+                <div class="referee-list">
+                    
+                </div>
+            </div>
+            
+            <div class="field-flights">
+                <strong>Assigned Flights:</strong>
+                <form action="update_schedule" method="POST">
+                    
+                </form>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Time</th>
+                        <th>Transition</th>
+                        <th>Matchup</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+            <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
+                <button type="button" class="update-time-button" onclick="updateMatchTimes(document.getElementById('new_start_time').value, 1)">
+                    UPDATE TIME
+                </button>
+            </div>
+        </div>
+        
+        <div class="field-section" id="field-2">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>Field 2</h2>
+                <div style="width: 120px;"><!-- Empty div for balance --></div>
+            </div>
+            
+            <div class="referee-section" style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong>Referees:</strong>
+                    <button type="button" class="add-referee-btn" onclick="showAddRefereeModal(2)">Add Referee</button>
+                </div>
+                <div class="referee-list">
+                    
+                </div>
+            </div>
+            
+            <div class="field-flights">
+                <strong>Assigned Flights:</strong>
+                <form action="update_schedule" method="POST">
+                    
+                </form>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Time</th>
+                        <th>Transition</th>
+                        <th>Matchup</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+            <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
+                <button type="button" class="update-time-button" onclick="updateMatchTimes(document.getElementById('new_start_time').value, 2)">
+                    UPDATE TIME
+                </button>
+            </div>
+        </div>
+        
+        <div class="field-section" id="field-3">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>Field 3</h2>
+                <div style="width: 120px;"><!-- Empty div for balance --></div>
+            </div>
+            
+            <div class="referee-section" style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong>Referees:</strong>
+                    <button type="button" class="add-referee-btn" onclick="showAddRefereeModal(3)">Add Referee</button>
+                </div>
+                <div class="referee-list">
+                    
+                </div>
+            </div>
+            
+            <div class="field-flights">
+                <strong>Assigned Flights:</strong>
+                <form action="update_schedule" method="POST">
+                    
+                </form>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Time</th>
+                        <th>Transition</th>
+                        <th>Matchup</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+            <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
+                <button type="button" class="update-time-button" onclick="updateMatchTimes(document.getElementById('new_start_time').value, 3)">
+                    UPDATE TIME
+                </button>
+            </div>
+        </div>
+        
+        <div class="field-section" id="field-4">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>Field 4</h2>
+                <div style="width: 120px;"><!-- Empty div for balance --></div>
+            </div>
+            
+            <div class="referee-section" style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong>Referees:</strong>
+                    <button type="button" class="add-referee-btn" onclick="showAddRefereeModal(4)">Add Referee</button>
+                </div>
+                <div class="referee-list">
+                    
+                </div>
+            </div>
+            
+            <div class="field-flights">
+                <strong>Assigned Flights:</strong>
+                <form action="update_schedule" method="POST">
+                    
+                </form>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Time</th>
+                        <th>Transition</th>
+                        <th>Matchup</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+            <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
+                <button type="button" class="update-time-button" onclick="updateMatchTimes(document.getElementById('new_start_time').value, 4)">
+                    UPDATE TIME
+                </button>
+            </div>
+        </div>
+        
+        <div class="field-section" id="field-5">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>Field 5</h2>
+                <div style="width: 120px;"><!-- Empty div for balance --></div>
+            </div>
+            
+            <div class="referee-section" style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong>Referees:</strong>
+                    <button type="button" class="add-referee-btn" onclick="showAddRefereeModal(5)">Add Referee</button>
+                </div>
+                <div class="referee-list">
+                    
+                </div>
+            </div>
+            
+            <div class="field-flights">
+                <strong>Assigned Flights:</strong>
+                <form action="update_schedule" method="POST">
+                    
+                </form>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Time</th>
+                        <th>Transition</th>
+                        <th>Matchup</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+            <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
+                <button type="button" class="update-time-button" onclick="updateMatchTimes(document.getElementById('new_start_time').value, 5)">
+                    UPDATE TIME
+                </button>
+            </div>
+        </div>
+        
+        <div class="field-section" id="field-6">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>Field 6</h2>
+                <div style="width: 120px;"><!-- Empty div for balance --></div>
+            </div>
+            
+            <div class="referee-section" style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong>Referees:</strong>
+                    <button type="button" class="add-referee-btn" onclick="showAddRefereeModal(6)">Add Referee</button>
+                </div>
+                <div class="referee-list">
+                    
+                </div>
+            </div>
+            
+            <div class="field-flights">
+                <strong>Assigned Flights:</strong>
+                <form action="update_schedule" method="POST">
+                    
+                </form>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Time</th>
+                        <th>Transition</th>
+                        <th>Matchup</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+            <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
+                <button type="button" class="update-time-button" onclick="updateMatchTimes(document.getElementById('new_start_time').value, 6)">
+                    UPDATE TIME
+                </button>
+            </div>
+        </div>
+        
+        <div class="field-section" id="field-7">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>Field 7</h2>
+                <div style="width: 120px;"><!-- Empty div for balance --></div>
+            </div>
+            
+            <div class="referee-section" style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong>Referees:</strong>
+                    <button type="button" class="add-referee-btn" onclick="showAddRefereeModal(7)">Add Referee</button>
+                </div>
+                <div class="referee-list">
+                    
+                </div>
+            </div>
+            
+            <div class="field-flights">
+                <strong>Assigned Flights:</strong>
+                <form action="update_schedule" method="POST">
+                    
+                </form>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Time</th>
+                        <th>Transition</th>
+                        <th>Matchup</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+            <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
+                <button type="button" class="update-time-button" onclick="updateMatchTimes(document.getElementById('new_start_time').value, 7)">
+                    UPDATE TIME
+                </button>
+            </div>
+        </div>
+        
+        <div class="field-section" id="field-8">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>Field 8</h2>
+                <div style="width: 120px;"><!-- Empty div for balance --></div>
+            </div>
+            
+            <div class="referee-section" style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong>Referees:</strong>
+                    <button type="button" class="add-referee-btn" onclick="showAddRefereeModal(8)">Add Referee</button>
+                </div>
+                <div class="referee-list">
+                    
+                </div>
+            </div>
+            
+            <div class="field-flights">
+                <strong>Assigned Flights:</strong>
+                <form action="update_schedule" method="POST">
+                    
+                </form>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>Time</th>
+                        <th>Transition</th>
+                        <th>Matchup</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+            <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
+                <button type="button" class="update-time-button" onclick="updateMatchTimes(document.getElementById('new_start_time').value, 8)">
+                    UPDATE TIME
+                </button>
+            </div>
+        </div>
+        
+
+        <div style="display: flex; justify-content: space-between; margin: 20px;">
+            <div style="display: flex; gap: 10px;">
+                <a href="flight_selection" class="return-button" style="background-color: #af9b62;">
+                    RETURN TO FLIGHT SELECTION
+                </a>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="saveSchedule()" class="return-button" style="background-color: #4a90e2;">
+                    SAVE CHANGES
+                </button>
+                <a href="download_schedule" class="return-button" style="background-color: #4CAF50;">
+                    DOWNLOAD SCHEDULE
+                </a>
+                
+                <a href="schedule_flex_b" class="return-button" style="background-color: #4CAF50;">
+                    SCHEDULE FLEX B
+                </a>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this HTML for the modal dialog right after your container div -->
+    <div id="addRefereeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Add Referee</h2>
+            <input type="text" id="newRefereeName" placeholder="Referee Name">
+            <div style="display: flex; gap: 20px; margin: 15px 0;">
+                <label class="checkbox-container">
+                    Head Referee
+                    <input type="checkbox" id="newRefereeHead">
+                    <span class="checkmark"></span>
+                </label>
+                <label class="checkbox-container">
+                    Lead Referee
+                    <input type="checkbox" id="newRefereeLead">
+                    <span class="checkmark"></span>
+                </label>
+            </div>
+            <div class="modal-buttons">
+                <button onclick="addNewReferee()">Add</button>
+                <button onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let draggedRow = null;
+
+        function dragStart(event) {
+            draggedRow = event.target.closest('tr');
+            draggedRow.classList.add('dragging');
+            event.dataTransfer.setData('text/plain', ''); // Required for Firefox
+        }
+
+        function dragOver(event) {
+            event.preventDefault();
+            const row = event.target.closest('tr');
+            if (row && row !== draggedRow) {
+                // Remove drag-over class from all rows
+                const rows = document.querySelectorAll('.match-row');
+                rows.forEach(r => r.classList.remove('drag-over'));
+                
+                // Add drag-over class to current row
+                row.classList.add('drag-over');
+            }
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const row = event.target.closest('tr');
+            if (row && row !== draggedRow) {
+                // Remove drag-over class
+                row.classList.remove('drag-over');
+                
+                // Get all rows in the current table
+                const tbody = row.closest('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr:not(.new-match-row)'));
+                
+                // Get the positions
+                const fromIndex = rows.indexOf(draggedRow);
+                const toIndex = rows.indexOf(row);
+                
+                // Reorder the rows
+                if (fromIndex < toIndex) {
+                    row.parentNode.insertBefore(draggedRow, row.nextSibling);
+                } else {
+                    row.parentNode.insertBefore(draggedRow, row);
+                }
+                
+                // Update match numbers
+                updateMatchNumbers(tbody);
+            }
+            draggedRow.classList.remove('dragging');
+            draggedRow = null;
+        }
+
+        function updateMatchNumbers(tbody) {
+            const rows = Array.from(tbody.querySelectorAll('tr:not(.new-match-row)'));
+            rows.forEach((row, index) => {
+                const matchNumberInput = row.querySelector('input[type="number"]');
+                if (matchNumberInput) {
+                    // Reset numbering to start at 1 for each field
+                    matchNumberInput.value = index + 1;
+                }
+            });
+        }
+
+        // Add this function to initialize match numbers when page loads
+        function initializeMatchNumbers() {
+            const fields = document.querySelectorAll('.field-section');
+            fields.forEach(field => {
+                const tbody = field.querySelector('tbody');
+                if (tbody) {
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    rows.forEach((row, index) => {
+                        const matchNumberInput = row.querySelector('input[type="number"]');
+                        if (matchNumberInput) {
+                            matchNumberInput.value = index + 1;
+                        }
+                    });
+                }
+            });
+        }
+
+        // Call initializeMatchNumbers when page loads
+        document.addEventListener('DOMContentLoaded', initializeMatchNumbers);
+
+        function updateMatchTimes(startTime, fieldId) {
+            // Get the specific field's table
+            const field = document.getElementById(`field-${fieldId}`);
+            const table = field.querySelector('table');
+            let currentTime = new Date(`1970-01-01T${startTime}:00`);
+
+            const rows = table.querySelectorAll('tbody tr:not(.new-match-row)');
+            rows.forEach(row => {
+                const timeInput = row.querySelector('input[name^="time_"]');
+                const transitionInput = row.querySelector('input[name^="transition_"]');
+
+                if (timeInput && transitionInput) {
+                    const gameEnd = new Date(currentTime.getTime() + 20 * 60000); // 20 minutes later
+                    const transitionEnd = new Date(gameEnd.getTime() + 10 * 60000); // 10 minutes later
+
+                    timeInput.value = `${formatTime(currentTime)} - ${formatTime(gameEnd)}`;
+                    transitionInput.value = `${formatTime(gameEnd)} - ${formatTime(transitionEnd)}`;
+
+                    currentTime = transitionEnd;
+                }
+            });
+            
+            // Save the updated schedule
+            saveSchedule();
+        }
+
+        function formatTime(date) {
+            return date.toTimeString().slice(0, 5);
+        }
+
+        function saveSchedule() {
+            // Collect all schedule data from the tables
+            let updatedSchedule = [];
+            const tables = document.querySelectorAll('table');
+            
+            tables.forEach((table, tableIndex) => {
+                const fieldNumber = tableIndex + 1;
+                const rows = table.querySelectorAll('tbody tr:not(.new-match-row)');
+                
+                rows.forEach((row, index) => {
+                    const matchNumber = index + 1;  // Reset numbering for each field
+                    const time = row.querySelector('input[name^="time_"]').value;
+                    const transition = row.querySelector('input[name^="transition_"]').value;
+                    const flight1 = row.querySelector('input[name^="flight1_"]').value;
+                    const flight2 = row.querySelector('input[name^="flight2_"]').value;
+                    
+                    updatedSchedule.push({
+                        field: fieldNumber,
+                        match_number: matchNumber,
+                        time: time,
+                        transition: transition,
+                        flight1: flight1,
+                        flight2: flight2
+                    });
+                });
+            });
+
+            // Send the updated schedule to the server
+            fetch('/save_schedule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ schedule: updatedSchedule })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add visual feedback
+                    const feedback = document.createElement('div');
+                    feedback.textContent = 'Schedule saved successfully!';
+                    feedback.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background-color: #4CAF50;
+                        color: white;
+                        padding: 15px;
+                        border-radius: 4px;
+                        z-index: 1000;
+                    `;
+                    document.body.appendChild(feedback);
+                    setTimeout(() => feedback.remove(), 3000);
+                } else {
+                    alert('Error saving schedule: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving schedule');
+            });
+        }
+
+        // Add event listeners to all input fields to auto-save on change
+        document.querySelectorAll('input[name^="match_number_"], input[name^="time_"], input[name^="transition_"], input[name^="flight1_"], input[name^="flight2_"]').forEach(input => {
+            input.addEventListener('change', saveSchedule);
+        });
+
+        function adjustStartTime(event) {
+            event.preventDefault();
+            const newTime = document.getElementById('new_start_time').value;
+            const isFlexB = window.location.href.includes('flex_b');
+            
+            fetch('/adjust_start_time', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    new_time: newTime,
+                    is_flex_b: isFlexB
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Refresh the page to show updated schedule
+                    window.location.reload();
+                } else {
+                    alert('Error updating start time: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating start time');
+            });
+            
+            return false;
+        }
+
+        document.querySelectorAll('.head-referee-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const field = this.dataset.field;
+                const flight = this.dataset.flight;
+                const isHeadReferee = this.checked;
+                
+                // Send the update to the server
+                fetch('/update_head_referee', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        field: field,
+                        flight: flight,
+                        isHead: isHeadReferee
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error('Error updating head referee status');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+
+        function showAddRefereeModal(fieldNum) {
+            const modal = document.getElementById('addRefereeModal');
+            modal.style.display = 'flex';
+            modal.dataset.fieldNum = fieldNum;
+        }
+
+        function closeModal() {
+            document.getElementById('addRefereeModal').style.display = 'none';
+            document.getElementById('newRefereeName').value = '';
+            document.getElementById('newRefereeHead').checked = false;
+            document.getElementById('newRefereeLead').checked = false;
+        }
+
+        function addNewReferee() {
+            const name = document.getElementById('newRefereeName').value.trim();
+            const isHead = document.getElementById('newRefereeHead').checked;
+            const isLead = document.getElementById('newRefereeLead').checked;
+            const fieldNum = document.getElementById('addRefereeModal').dataset.fieldNum;
+            
+            if (!name) {
+                alert('Please enter a referee name');
+                return;
+            }
+
+            // Create new referee entry
+            const refereeList = document.querySelector(`#field-${fieldNum} .referee-list`);
+            const newEntry = document.createElement('div');
+            newEntry.className = 'referee-entry';
+            newEntry.style.display = 'flex';
+            newEntry.style.justifyContent = 'space-between';
+            newEntry.style.alignItems = 'center';
+            
+            newEntry.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <button class="delete-referee-btn" onclick="deleteManualReferee(this, ${fieldNum}, '${name}')" style="margin-right: 10px;">×</button>
+                    ${name}
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div class="head-referee-toggle">
+                        <label class="checkbox-container">
+                            Head Referee
+                            <input type="checkbox" class="head-referee-checkbox" 
+                                   data-field="${fieldNum}" 
+                                   data-referee="${name}" 
+                                   ${isHead ? 'checked' : ''}>
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="lead-referee-toggle">
+                        <label class="checkbox-container">
+                            Lead Referee
+                            <input type="checkbox" class="lead-referee-checkbox" 
+                                   data-field="${fieldNum}" 
+                                   data-referee="${name}" 
+                                   ${isLead ? 'checked' : ''}>
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                </div>
+            `;
+
+            // Update session data via fetch
+            fetch('/update_referee', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name,
+                    field: fieldNum,
+                    isHead: isHead,
+                    isLead: isLead
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    refereeList.appendChild(newEntry);
+                    closeModal();
+                } else {
+                    alert('Error adding referee: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding referee');
+            });
+        }
+
+        function deleteManualReferee(button, fieldNum, refereeName) {
+            if (confirm('Are you sure you want to remove this referee?')) {
+                fetch('/delete_referee', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        field: fieldNum,
+                        name: refereeName,
+                        isManual: true
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        button.closest('.referee-entry').remove();
+                    } else {
+                        alert('Error removing referee: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error removing referee');
+                });
+            }
+        }
+
+        // Update the Add Referee button click handler
+        document.querySelectorAll('.add-referee-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const fieldNum = this.closest('.field-section').querySelector('h2').textContent.split(' ')[1];
+                showAddRefereeModal(fieldNum);
+            });
+        });
+
+        function deleteReferee(button, fieldNum, flight) {
+            if (confirm('Are you sure you want to remove this referee?')) {
+                fetch('/delete_referee', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        field: fieldNum,
+                        flight: flight
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the referee entry from the UI
+                        button.closest('.referee-entry').remove();
+                    } else {
+                        alert('Error removing referee: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error removing referee');
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

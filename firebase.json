@@ -1,0 +1,30 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/flight_selection",
+        "destination": "/flight_selection.html"
+      },
+      {
+        "source": "/view_flex_a",
+        "destination": "/view_flex_a.html"
+      },
+      {
+        "source": "/schedule_flex_b",
+        "destination": "/schedule_flex_b.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false
+  }
+}

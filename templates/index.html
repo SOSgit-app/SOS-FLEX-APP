@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Force Flex A Scheduler</title>
+    <style>
+        body {
+            background-color: #1a2f5a; /* Air Force Blue */
+            color: white;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ffffff;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #af9b62; /* Air Force Gold */
+            color: #1a2f5a;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #c5b178;
+        }
+        input:focus {
+            outline: none;
+            border-color: #af9b62;
+        }
+        .upload-form {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .upload-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2d5a27;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer;
+            border: none;
+            margin-top: 20px;
+        }
+        
+        .upload-btn:hover {
+            background-color: #3a7334;
+        }
+        
+        .or-divider {
+            margin: 20px 0;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #1a2f5a;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Flex A Initial Setup</h1>
+        
+        <!-- Upload form -->
+        <form id="uploadForm" action="/upload_schedule" method="POST" enctype="multipart/form-data" class="upload-form">
+            <input type="file" id="file-upload" name="schedule_file" accept=".xlsx" style="display: none;">
+            <input type="hidden" name="schedule_type" id="schedule_type">
+            <label for="file-upload" class="upload-btn" onclick="showScheduleTypeModal(event)">UPLOAD EXISTING SCHEDULE</label>
+        </form>
+        
+        <div class="or-divider">- OR -</div>
+        
+        <!-- Existing new schedule form -->
+        <form action="/submit" method="POST">
+            <div class="form-group">
+                <label for="class_name">Class Name:</label>
+                <input type="text" id="class_name" name="class_name" required>
+            </div>
+            <div class="form-group">
+                <label for="start_time">Start Time (24-hour format):</label>
+                <input type="time" id="start_time" name="start_time" required>
+            </div>
+            <div class="form-group">
+                <label for="arrival_time">Arrival Time (24-hour format):</label>
+                <input type="time" id="arrival_time" name="arrival_time" required>
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; margin-bottom: 20px;">
+                <input type="checkbox" id="flexible_scheduling" name="flexible_scheduling" style="width: auto; margin-right: 10px;">
+                <label for="flexible_scheduling" style="margin-bottom: 0;">Enable Flexible Scheduling</label>
+            </div>
+            <div class="tooltip" style="position: relative; display: inline-block; margin-bottom: 20px; width: 100%;">
+                <div style="background-color: rgba(255, 255, 255, 0.1); padding: 10px; border-radius: 4px; font-size: 14px; color: #c5b178;">
+                    <i style="margin-right: 5px;">ℹ️</i> Flexible scheduling allows matches between flights of the same squadron. This is useful for special class sessions with fewer squadrons (e.g. 2 squadrons with 19 flights).
+                </div>
+            </div>
+            <button type="submit">CREATE NEW SCHEDULE</button>
+        </form>
+    </div>
+
+    <!-- Add this modal HTML after the container div -->
+    <div id="scheduleTypeModal" class="modal" style="display: none;">
+        <div class="modal-content" style="text-align: center;">
+            <h2>Select Schedule Type</h2>
+            <p>Which type of schedule are you uploading?</p>
+            <div style="display: flex; gap: 20px; justify-content: center; margin-top: 20px;">
+                <button onclick="uploadSchedule('flex_a')" class="upload-btn">Flex A Schedule</button>
+                <button onclick="uploadSchedule('flex_b')" class="upload-btn">Flex B Schedule</button>
+            </div>
+            <button onclick="closeScheduleTypeModal()" style="
+                margin-top: 20px;
+                padding: 8px 16px;
+                background-color: #4A4A4A;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            ">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Add this JavaScript -->
+    <script>
+    function showScheduleTypeModal(event) {
+        event.preventDefault();
+        document.getElementById('scheduleTypeModal').style.display = 'flex';
+    }
+
+    function closeScheduleTypeModal() {
+        document.getElementById('scheduleTypeModal').style.display = 'none';
+    }
+
+    function uploadSchedule(type) {
+        document.getElementById('schedule_type').value = type;
+        document.getElementById('file-upload').click();
+    }
+
+    // Auto-submit form when file is selected
+    document.getElementById('file-upload').addEventListener('change', function() {
+        document.getElementById('uploadForm').submit();
+    });
+    </script>
+</body>
+</html> 

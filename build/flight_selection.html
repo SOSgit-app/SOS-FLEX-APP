@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Force Flex A Scheduler - Flight Selection</title>
+    <style>
+        body {
+            background-color: #1a2f5a;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+        }
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ffffff;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .flight-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .flight-header {
+            margin-bottom: 15px;
+        }
+        .flight-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+        }
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            padding: 10px 0;
+        }
+        .class-button {
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+        }
+        .class-button.selected {
+            transform: scale(1.05);
+            border: 2px solid white;
+        }
+        .knights .class-button {
+            background-color: #FFFFFF;
+            color: #FF0000;
+        }
+        .knights .class-button:hover {
+            background-color: #f5f5f5;
+        }
+        .knights .class-button.selected {
+            background-color: #f5f5f5;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+            border: 2px solid #FF0000;
+            font-weight: bold;
+        }
+        .bulls .class-button {
+            background-color: #4B0F0F;
+            color: #FFA500;
+        }
+        .bulls .class-button:hover {
+            background-color: #3a0c0c;
+        }
+        .bulls .class-button.selected {
+            background-color: #3a0c0c;
+            box-shadow: 0 0 15px rgba(255, 165, 0, 0.6);
+            border: 2px solid #FFA500;
+            font-weight: bold;
+        }
+        .centurions .class-button {
+            background-color: #228B22;
+            color: #FFFF00;
+        }
+        .centurions .class-button:hover {
+            background-color: #1b6e1b;
+        }
+        .centurions .class-button.selected {
+            background-color: #1b6e1b;
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.6);
+            border: 2px solid #FFFF00;
+            font-weight: bold;
+        }
+        .tigers .class-button {
+            background-color: #E65100;
+            color: #000000;
+        }
+        .tigers .class-button:hover {
+            background-color: #b84100;
+        }
+        .tigers .class-button.selected {
+            background-color: #b84100;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+            border: 2px solid #000000;
+            font-weight: bold;
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #af9b62;
+            color: #1a2f5a;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+        button[type="submit"]:hover {
+            background-color: #c5b178;
+        }
+        .flight-button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        /* Knights Squadron */
+        .flight-button[value^="A"] {
+            background-color: #FFFFFF;
+            color: #FF0000;
+        }
+        
+        .flight-button[value^="A"]:hover {
+            background-color: #f5f5f5;  /* Slightly darker white for hover */
+        }
+        
+        /* Bulls Squadron */
+        .flight-button[value^="B"] {
+            background-color: #4B0F0F;
+            color: #FFA500;
+        }
+        
+        .flight-button[value^="B"]:hover {
+            background-color: #3a0c0c;  /* Slightly darker maroon for hover */
+        }
+        
+        /* Centurions Squadron */
+        .flight-button[value^="C"] {
+            background-color: #228B22;
+            color: #FFFF00;
+        }
+        
+        .flight-button[value^="C"]:hover {
+            background-color: #1b6e1b;  /* Slightly darker green for hover */
+        }
+        
+        /* Tigers Squadron */
+        .flight-button[value^="F"] {
+            background-color: #E65100;
+            color: #000000;
+        }
+        
+        .flight-button[value^="F"]:hover {
+            background-color: #b84100;  /* Slightly darker orange for hover */
+        }
+        
+        /* Selected state for all buttons */
+        .flight-button.selected {
+            transform: scale(0.95);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Add back button at the top -->
+        <div style="margin-bottom: 20px;">
+            <a href="/" class="return-button" style="
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #4A4A4A;
+                color: white;
+                text-decoration: none;
+                border-radius: 4px;
+                font-weight: bold;
+                transition: background-color 0.2s;
+            ">
+                ← BACK
+            </a>
+        </div>
+
+        <h1>Flight Selection</h1>
+        <form action="process_flights.html.html" method="post">
+            <div class="form-group">
+                <label for="num_fields">Number of Fields:</label>
+                <input type="number" id="num_fields" name="num_fields" min="1" max="8" required>
+            </div>
+            <div class="flight-section knights">
+                <div class="flight-header">
+                    <span class="flight-title">Knights</span>
+                </div>
+                <div class="class-grid">
+                    <input type="checkbox" id="A01" name="classes" value="A01" hidden>
+                    <label for="A01" class="class-button">A01</label>
+                    <input type="checkbox" id="A02" name="classes" value="A02" hidden>
+                    <label for="A02" class="class-button">A02</label>
+                    <input type="checkbox" id="A03" name="classes" value="A03" hidden>
+                    <label for="A03" class="class-button">A03</label>
+                    <input type="checkbox" id="A04" name="classes" value="A04" hidden>
+                    <label for="A04" class="class-button">A04</label>
+                    <input type="checkbox" id="A05" name="classes" value="A05" hidden>
+                    <label for="A05" class="class-button">A05</label>
+                    <input type="checkbox" id="A06" name="classes" value="A06" hidden>
+                    <label for="A06" class="class-button">A06</label>
+                    <input type="checkbox" id="A07" name="classes" value="A07" hidden>
+                    <label for="A07" class="class-button">A07</label>
+                    <input type="checkbox" id="A08" name="classes" value="A08" hidden>
+                    <label for="A08" class="class-button">A08</label>
+                    <input type="checkbox" id="A09" name="classes" value="A09" hidden>
+                    <label for="A09" class="class-button">A09</label>
+                    <input type="checkbox" id="A10" name="classes" value="A10" hidden>
+                    <label for="A10" class="class-button">A10</label>
+                    <input type="checkbox" id="A11" name="classes" value="A11" hidden>
+                    <label for="A11" class="class-button">A11</label>
+                    <input type="checkbox" id="A12" name="classes" value="A12" hidden>
+                    <label for="A12" class="class-button">A12</label>
+                    <input type="checkbox" id="A13" name="classes" value="A13" hidden>
+                    <label for="A13" class="class-button">A13</label>
+                    <input type="checkbox" id="A14" name="classes" value="A14" hidden>
+                    <label for="A14" class="class-button">A14</label>
+                    <input type="checkbox" id="A15" name="classes" value="A15" hidden>
+                    <label for="A15" class="class-button">A15</label>
+                </div>
+            </div>
+
+            <div class="flight-section bulls">
+                <div class="flight-header">
+                    <span class="flight-title">Bulls</span>
+                </div>
+                <div class="class-grid">
+                    <input type="checkbox" id="B16" name="classes" value="B16" hidden>
+                    <label for="B16" class="class-button">B16</label>
+                    <input type="checkbox" id="B17" name="classes" value="B17" hidden>
+                    <label for="B17" class="class-button">B17</label>
+                    <input type="checkbox" id="B18" name="classes" value="B18" hidden>
+                    <label for="B18" class="class-button">B18</label>
+                    <input type="checkbox" id="B19" name="classes" value="B19" hidden>
+                    <label for="B19" class="class-button">B19</label>
+                    <input type="checkbox" id="B20" name="classes" value="B20" hidden>
+                    <label for="B20" class="class-button">B20</label>
+                    <input type="checkbox" id="B21" name="classes" value="B21" hidden>
+                    <label for="B21" class="class-button">B21</label>
+                    <input type="checkbox" id="B22" name="classes" value="B22" hidden>
+                    <label for="B22" class="class-button">B22</label>
+                    <input type="checkbox" id="B23" name="classes" value="B23" hidden>
+                    <label for="B23" class="class-button">B23</label>
+                    <input type="checkbox" id="B24" name="classes" value="B24" hidden>
+                    <label for="B24" class="class-button">B24</label>
+                    <input type="checkbox" id="B25" name="classes" value="B25" hidden>
+                    <label for="B25" class="class-button">B25</label>
+                    <input type="checkbox" id="B26" name="classes" value="B26" hidden>
+                    <label for="B26" class="class-button">B26</label>
+                    <input type="checkbox" id="B27" name="classes" value="B27" hidden>
+                    <label for="B27" class="class-button">B27</label>
+                    <input type="checkbox" id="B28" name="classes" value="B28" hidden>
+                    <label for="B28" class="class-button">B28</label>
+                    <input type="checkbox" id="B29" name="classes" value="B29" hidden>
+                    <label for="B29" class="class-button">B29</label>
+                    <input type="checkbox" id="B30" name="classes" value="B30" hidden>
+                    <label for="B30" class="class-button">B30</label>
+                </div>
+            </div>
+
+            <div class="flight-section centurions">
+                <div class="flight-header">
+                    <span class="flight-title">Centurions</span>
+                </div>
+                <div class="class-grid">
+                    <input type="checkbox" id="C31" name="classes" value="C31" hidden>
+                    <label for="C31" class="class-button">C31</label>
+                    <input type="checkbox" id="C32" name="classes" value="C32" hidden>
+                    <label for="C32" class="class-button">C32</label>
+                    <input type="checkbox" id="C33" name="classes" value="C33" hidden>
+                    <label for="C33" class="class-button">C33</label>
+                    <input type="checkbox" id="C34" name="classes" value="C34" hidden>
+                    <label for="C34" class="class-button">C34</label>
+                    <input type="checkbox" id="C35" name="classes" value="C35" hidden>
+                    <label for="C35" class="class-button">C35</label>
+                    <input type="checkbox" id="C36" name="classes" value="C36" hidden>
+                    <label for="C36" class="class-button">C36</label>
+                    <input type="checkbox" id="C37" name="classes" value="C37" hidden>
+                    <label for="C37" class="class-button">C37</label>
+                    <input type="checkbox" id="C38" name="classes" value="C38" hidden>
+                    <label for="C38" class="class-button">C38</label>
+                    <input type="checkbox" id="C39" name="classes" value="C39" hidden>
+                    <label for="C39" class="class-button">C39</label>
+                    <input type="checkbox" id="C40" name="classes" value="C40" hidden>
+                    <label for="C40" class="class-button">C40</label>
+                    <input type="checkbox" id="C41" name="classes" value="C41" hidden>
+                    <label for="C41" class="class-button">C41</label>
+                    <input type="checkbox" id="C42" name="classes" value="C42" hidden>
+                    <label for="C42" class="class-button">C42</label>
+                    <input type="checkbox" id="C43" name="classes" value="C43" hidden>
+                    <label for="C43" class="class-button">C43</label>
+                    <input type="checkbox" id="C44" name="classes" value="C44" hidden>
+                    <label for="C44" class="class-button">C44</label>
+                    <input type="checkbox" id="C45" name="classes" value="C45" hidden>
+                    <label for="C45" class="class-button">C45</label>
+                    <input type="checkbox" id="C46" name="classes" value="C46" hidden>
+                    <label for="C46" class="class-button">C46</label>
+                </div>
+            </div>
+
+            <div class="flight-section tigers">
+                <div class="flight-header">
+                    <span class="flight-title">Tigers</span>
+                </div>
+                <div class="class-grid">
+                    <input type="checkbox" id="F60" name="classes" value="F60" hidden>
+                    <label for="F60" class="class-button">F60</label>
+                    <input type="checkbox" id="F61" name="classes" value="F61" hidden>
+                    <label for="F61" class="class-button">F61</label>
+                    <input type="checkbox" id="F62" name="classes" value="F62" hidden>
+                    <label for="F62" class="class-button">F62</label>
+                    <input type="checkbox" id="F63" name="classes" value="F63" hidden>
+                    <label for="F63" class="class-button">F63</label>
+                    <input type="checkbox" id="F64" name="classes" value="F64" hidden>
+                    <label for="F64" class="class-button">F64</label>
+                    <input type="checkbox" id="F65" name="classes" value="F65" hidden>
+                    <label for="F65" class="class-button">F65</label>
+                    <input type="checkbox" id="F66" name="classes" value="F66" hidden>
+                    <label for="F66" class="class-button">F66</label>
+                    <input type="checkbox" id="F67" name="classes" value="F67" hidden>
+                    <label for="F67" class="class-button">F67</label>
+                    <input type="checkbox" id="F68" name="classes" value="F68" hidden>
+                    <label for="F68" class="class-button">F68</label>
+                    <input type="checkbox" id="F69" name="classes" value="F69" hidden>
+                    <label for="F69" class="class-button">F69</label>
+                    <input type="checkbox" id="F70" name="classes" value="F70" hidden>
+                    <label for="F70" class="class-button">F70</label>
+                    <input type="checkbox" id="F71" name="classes" value="F71" hidden>
+                    <label for="F71" class="class-button">F71</label>
+                    <input type="checkbox" id="F72" name="classes" value="F72" hidden>
+                    <label for="F72" class="class-button">F72</label>
+                    <input type="checkbox" id="F73" name="classes" value="F73" hidden>
+                    <label for="F73" class="class-button">F73</label>
+                    <input type="checkbox" id="F74" name="classes" value="F74" hidden>
+                    <label for="F74" class="class-button">F74</label>
+                    <input type="checkbox" id="F75" name="classes" value="F75" hidden>
+                    <label for="F75" class="class-button">F75</label>
+                </div>
+            </div>
+
+            <input type="hidden" name="debug" value="1">
+
+            <div id="selected-count" style="text-align: center; margin-top: 10px; color: white;">
+                Selected Flights: <span id="count">0</span>
+            </div>
+
+            <!-- Add this section after the flight selection section -->
+            <div class="referee-selection" style="margin-top: 30px; background-color: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px;">
+                <h2 style="color: white; margin-bottom: 15px;">Add Referees</h2>
+                <div style="display: flex; gap: 40px;">
+                    <div style="flex: 1; margin-right: 20px;">
+                        <label for="referee-list" style="color: white; display: block; margin-bottom: 10px;">
+                            Paste Flight and Instructor List
+                            <br>
+                            <small style="color: #aaa;">Format: Flight[Tab]Instructor Name</small>
+                        </label>
+                        <textarea id="referee-list" name="referee_list" rows="10" style="
+                            width: 100%;
+                            background-color: rgba(255, 255, 255, 0.1);
+                            border: 1px solid rgba(255, 255, 255, 0.2);
+                            border-radius: 4px;
+                            padding: 10px;
+                            color: white;
+                            font-family: monospace;
+                            resize: vertical;
+                            margin-bottom: 10px;
+                        " placeholder="Example:
+A08    Maj William Hashman
+B17    Maj Raquel Lewis
+C31    Maj Joseph Haas"></textarea>
+                    </div>
+                    
+                    <div style="flex: 1; padding-left: 20px;">
+                        <h3 style="color: white; margin-bottom: 10px;">Format Instructions</h3>
+                        <ul style="color: white; list-style-type: none; padding: 0;">
+                            <li style="margin-bottom: 8px;">• Paste the flight and instructor list directly</li>
+                            <li style="margin-bottom: 8px;">• Each line should contain a flight number and instructor name</li>
+                            <li style="margin-bottom: 8px;">• The flight number should match one from the selection above</li>
+                            <li style="margin-bottom: 8px;">• Example entries:</li>
+                            <li style="color: #aaa; margin-left: 20px; font-family: monospace;">A08    Maj William Hashman</li>
+                            <li style="color: #aaa; margin-left: 20px; font-family: monospace;">B17    Maj Raquel Lewis</li>
+                            <li style="color: #aaa; margin-left: 20px; font-family: monospace;">C31    Maj Joseph Haas</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add this at the bottom of the page, after the Add Referees section -->
+            <div style="margin-top: 30px; margin-bottom: 30px; text-align: center;">
+                <button type="submit" style="
+                    width: 100%;
+                    padding: 15px;
+                    background-color: #af9b62;
+                    color: #1a2f5a;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                    transition: background-color 0.2s;
+                ">CONTINUE</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Function to update checkbox state and visual feedback
+        function updateSelection(button, checkbox) {
+            button.classList.toggle('selected');
+            checkbox.checked = !checkbox.checked;
+            
+            // Update selected count
+            const selectedClasses = Array.from(document.querySelectorAll('input[name="classes"]:checked'));
+            document.getElementById('count').textContent = selectedClasses.length;
+        }
+
+        // Add click handlers to all class buttons
+        document.querySelectorAll('.class-button').forEach(button => {
+            const checkbox = document.getElementById(button.getAttribute('for'));
+            
+            // Handle click on the button/label
+            button.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent default label behavior
+                updateSelection(this, checkbox);
+            });
+        });
+
+        // Add form submission handler
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const selectedClasses = Array.from(document.querySelectorAll('input[name="classes"]:checked'));
+            
+            // Debug logging
+            console.log('Number of selected classes:', selectedClasses.length);
+            console.log('Selected classes:', selectedClasses.map(cb => cb.value));
+            
+            // Validate selection
+            if (selectedClasses.length < 2) {
+                e.preventDefault();
+                alert('Please select at least two classes to create a schedule.');
+            }
+        });
+
+        document.querySelector('form').onsubmit = function() {
+            // Get referee data
+            const refereeList = document.getElementById('referee-list').value;
+            
+            // Create hidden input for referee data
+            const refereeInput = document.createElement('input');
+            refereeInput.type = 'hidden';
+            refereeInput.name = 'referee_list';
+            refereeInput.value = refereeList;
+            this.appendChild(refereeInput);
+            
+            return true;
+        };
+    </script>
+</body>
+</html> 
