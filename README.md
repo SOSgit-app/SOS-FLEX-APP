@@ -104,3 +104,14 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
 If you get Docker permission errors, make sure Docker Desktop is running and you're in the docker-users group.
+
+## Automated Deployment
+
+This repository is configured with GitHub Actions for continuous deployment. Every push to the `main` branch automatically:
+- Builds a Docker container
+- Pushes it to Google Container Registry
+- Deploys to Cloud Run
+
+**Live URL**: https://flex-scheduler-677571398261.us-central1.run.app
+
+Monitor deployments at: https://github.com/SOSgit-app/SOS-FLEX-APP/actions
