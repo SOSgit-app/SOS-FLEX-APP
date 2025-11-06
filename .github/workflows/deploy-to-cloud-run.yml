@@ -33,9 +33,14 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
+      - name: Configure gcloud project
+        run: |
+          gcloud config set project ${{ env.PROJECT_ID }}
+          gcloud config list
+
       - name: Build and Push using Cloud Build
         run: |
-          gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}
+          gcloud builds submit --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }} --project=${{ env.PROJECT_ID }}
 
       - name: Deploy to Cloud Run
         run: |
@@ -44,7 +49,8 @@ jobs:
             --platform managed \
             --region ${{ env.REGION }} \
             --allow-unauthenticated \
-            --port 8080
+            --port 8080 \
+            --project=${{ env.PROJECT_ID }}
 
       - name: Show deployment URL
         run: |
