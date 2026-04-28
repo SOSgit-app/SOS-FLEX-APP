@@ -67,3 +67,23 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.Python
+*.egg-info/
+.venv/
+venv/
+
+# Desktop (Electron/Vite) build artifacts
+desktop/dist/
+desktop/dist-electron/
+desktop/backend-dist/
+desktop/backend-build/
+desktop/backend-spec/
+desktop/release/
+desktop/release-build/
+desktop/release-builds/
+desktop/.venv*/

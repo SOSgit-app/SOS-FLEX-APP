@@ -1711,4 +1711,7 @@ def regenerate_schedule():
         return f"An error occurred: {str(e)}", 500
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    # Allow desktop packaging (Electron) to run Flask locally.
+    port = int(os.environ.get('PORT', '5000'))
+    debug = os.environ.get('FLASK_DEBUG', '0') == '1'
+    app.run(host='127.0.0.1', port=port, debug=debug)
