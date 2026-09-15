@@ -16,6 +16,14 @@ function run(cmd, args, opts = {}) {
 
 // Build backend + renderer + electron main
 run('npm', ['run', 'build:backend']);
+
+const backendExe = path.join(root, 'backend-dist', 'flex-backend.exe');
+if (!fs.existsSync(backendExe)) {
+  console.error(`Missing bundled backend at ${backendExe}`);
+  console.error('Packaging aborted: Python must be available on the BUILD machine to create flex-backend.exe, but end users do not need Python.');
+  process.exit(1);
+}
+
 run('npm', ['run', 'build']);
 
 // Package to a fresh folder to avoid Windows file-lock issues
@@ -26,5 +34,6 @@ run('npx', [
   `--config.directories.output=${outDir}`
 ]);
 
-console.log(`\nInstaller output folder:\n  ${outDir}\n`);
+console.log(`\nInstaller output folder:\n  ${outDir}`);
+console.log('This installer includes a bundled backend (no Python required on end-user PCs).\n');
 

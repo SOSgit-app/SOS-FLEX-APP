@@ -1,0 +1,249 @@
+:root {
+  color: #fff;
+  background: #1a2f5a;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #1a2f5a;
+}
+
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.25);
+}
+
+.brand-title {
+  font-size: 1.75rem;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+}
+
+.brand-sub {
+  margin-top: 8px;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 28px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.card.wide {
+  max-width: 900px;
+}
+
+h1 {
+  margin-top: 0;
+  text-align: center;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 1.15rem;
+}
+
+h2 {
+  font-size: 1rem;
+  margin: 18px 0 10px;
+}
+
+label {
+  display: block;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+
+label.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+input[type='text'],
+input[type='time'],
+input[type='number'],
+textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font: inherit;
+}
+
+textarea {
+  font-family: ui-monospace, Consolas, monospace;
+  resize: vertical;
+}
+
+.hint,
+.meta,
+.count {
+  color: #c5b178;
+  font-size: 0.9rem;
+}
+
+.primary,
+.secondary,
+.gold {
+  border: none;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.primary {
+  width: 100%;
+  margin-top: 12px;
+  background: #af9b62;
+  color: #1a2f5a;
+}
+
+.secondary {
+  background: #4a4a4a;
+  color: #fff;
+}
+
+.gold {
+  background: #2d5a27;
+  color: #fff;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0 24px;
+}
+
+.actions.wrap {
+  flex-wrap: wrap;
+}
+
+.actions .primary {
+  width: auto;
+  margin-top: 0;
+}
+
+.squadron {
+  margin: 16px 0;
+  padding: 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.flight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 8px;
+}
+
+.flight-btn {
+  border: none;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.knights .flight-btn {
+  background: #fff;
+  color: #f00;
+}
+.bulls .flight-btn {
+  background: #4b0f0f;
+  color: orange;
+}
+.centurions .flight-btn {
+  background: #228b22;
+  color: #ff0;
+}
+.tigers .flight-btn {
+  background: #e65100;
+  color: #000;
+}
+
+.flight-btn.selected {
+  outline: 2px solid #fff;
+  transform: scale(1.04);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+}
+
+.assign-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px;
+}
+
+.assign-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+
+.field-block {
+  margin-top: 22px;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+th,
+td {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+th {
+  background: #4a4a4a;
+}
+
+.sq-A {
+  background: #fff;
+  color: #f00;
+}
+.sq-B {
+  background: #4b0f0f;
+  color: orange;
+}
+.sq-C {
+  background: #228b22;
+  color: #ff0;
+}
+.sq-F {
+  background: #e65100;
+  color: #000;
+}

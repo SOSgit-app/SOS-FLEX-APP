@@ -15,6 +15,7 @@ import xlsxwriter
 import pandas as pd
 from werkzeug.utils import secure_filename
 import os
+import re
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'  # Required for session
@@ -623,16 +624,19 @@ def process_flights():
         referees = {}
         
         if referee_list:
+            # Accept pasted tabs/spaces OR manually typed: "A08 Maj William Hashman"
+            referee_line_re = re.compile(r'^([A-Za-z]\d+)\s+(.+)$')
             for line in referee_list.split('\n'):
                 line = line.strip()
-                if line:
-                    # Split on tab or multiple spaces
-                    parts = line.split('\t') if '\t' in line else line.split('  ', 1)
-                    if len(parts) == 2:
-                        flight = parts[0].strip()
-                        name = parts[1].strip()
-                        if flight in selected_classes:  # Only add if flight is selected
-                            referees[flight] = name  # Store instructor name for each flight
+                if not line:
+                    continue
+                match = referee_line_re.match(line)
+                if not match:
+                    continue
+                flight = match.group(1).strip()
+                name = match.group(2).strip()
+                if flight in selected_classes:  # Only add if flight is selected
+                    referees[flight] = name  # Store instructor name for each flight
         
         # Store referees in session
         session['referees'] = referees

@@ -416,9 +416,9 @@
                 <div style="display: flex; gap: 40px;">
                     <div style="flex: 1; margin-right: 20px;">
                         <label for="referee-list" style="color: white; display: block; margin-bottom: 10px;">
-                            Paste Flight and Instructor List
+                            Paste or Type Flight and Instructor List
                             <br>
-                            <small style="color: #aaa;">Format: Flight[Tab]Instructor Name</small>
+                            <small style="color: #aaa;">Format: Flight, then a tab or space(s), then Instructor Name</small>
                         </label>
                         <textarea id="referee-list" name="referee_list" rows="10" style="
                             width: 100%;
@@ -430,22 +430,22 @@
                             font-family: monospace;
                             resize: vertical;
                             margin-bottom: 10px;
-                        " placeholder="Example:
+                        " placeholder="Example (paste or type):
 A08    Maj William Hashman
-B17    Maj Raquel Lewis
-C31    Maj Joseph Haas"></textarea>
+B17 Maj Raquel Lewis
+C31	Maj Joseph Haas"></textarea>
                     </div>
                     
                     <div style="flex: 1; padding-left: 20px;">
                         <h3 style="color: white; margin-bottom: 10px;">Format Instructions</h3>
                         <ul style="color: white; list-style-type: none; padding: 0;">
-                            <li style="margin-bottom: 8px;">• Paste the flight and instructor list directly</li>
-                            <li style="margin-bottom: 8px;">• Each line should contain a flight number and instructor name</li>
+                            <li style="margin-bottom: 8px;">• Paste from Excel/Word (tabs) or type it by hand (spaces)</li>
+                            <li style="margin-bottom: 8px;">• Each line: flight code, then any space/tab, then instructor name</li>
                             <li style="margin-bottom: 8px;">• The flight number should match one from the selection above</li>
                             <li style="margin-bottom: 8px;">• Example entries:</li>
-                            <li style="color: #aaa; margin-left: 20px; font-family: monospace;">A08    Maj William Hashman</li>
+                            <li style="color: #aaa; margin-left: 20px; font-family: monospace;">A08 Maj William Hashman</li>
                             <li style="color: #aaa; margin-left: 20px; font-family: monospace;">B17    Maj Raquel Lewis</li>
-                            <li style="color: #aaa; margin-left: 20px; font-family: monospace;">C31    Maj Joseph Haas</li>
+                            <li style="color: #aaa; margin-left: 20px; font-family: monospace;">C31	Maj Joseph Haas</li>
                         </ul>
                     </div>
                 </div>

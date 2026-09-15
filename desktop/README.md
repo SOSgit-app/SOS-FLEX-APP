@@ -1,26 +1,46 @@
 # Desktop app (Electron + Vite)
 
+This wraps the Flask FLEX Scheduler in a local Windows desktop app.
+
+## Important: Python is NOT required for end users
+
+The Windows installer ships a bundled `flex-backend.exe` (built with PyInstaller).  
+Installed users do **not** need Python or Node.
+
+Python is only needed on the **build machine** when creating the installer (`npm run package:win`).
+
 ## Run (developer mode)
 
-From the `desktop` folder:
+Developer mode still uses a local Flask process, so Python is needed for `npm run dev`:
 
 ```bat
+cd desktop
 npm install
 npm run dev
 ```
 
-## Build a clickable Windows installer (.exe)
+## Build a local installer (.exe)
 
-From the `desktop` folder:
+On the build machine (Python required **only here**):
 
 ```bat
+cd desktop
 npm install
 npm run package:win
 ```
 
-Output goes to `desktop\release\` (look for the installer `.exe`).
+Output goes to a timestamped folder under:
 
-## Note about Python
+`desktop\release-builds\`
 
-This desktop wrapper runs your existing Flask app locally. The packaged `.exe` **still requires Python 3 installed** on the machine (because the Flask backend is Python).
+Install from:
 
+`SOS FLEX Scheduler Setup 0.1.0.exe`
+
+## What the installer includes
+
+- Electron + Vite UI
+- Bundled backend (`resources/backend/flex-backend.exe`)
+- Templates / public assets
+
+End-user machines need no Python or Node.
