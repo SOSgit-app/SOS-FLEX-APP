@@ -294,17 +294,23 @@ textarea:focus {
 
 .class-button {
   padding: 8px;
-  border: none;
+  /* Transparent border reserves space so selection doesn't jump layout */
+  border: 3px solid transparent;
   border-radius: 4px;
   cursor: pointer;
   text-align: center;
   transition: all 0.2s ease-in-out;
   font-weight: 600;
+  box-sizing: border-box;
 }
 
+/* Gold ring reads on every squadron fill (esp. white Knights) */
 .class-button.selected {
   transform: scale(1.05);
-  border: 2px solid #fff;
+  border-color: #af9b62;
+  box-shadow:
+    0 0 0 2px #1a2f5a,
+    0 0 16px rgba(175, 155, 98, 0.95);
   font-weight: bold;
 }
 
@@ -317,8 +323,10 @@ textarea:focus {
 }
 .knights .class-button.selected {
   background-color: #f5f5f5;
-  box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-  border: 2px solid #f00;
+  border-color: #c0392b;
+  box-shadow:
+    0 0 0 2px #af9b62,
+    0 0 18px rgba(192, 57, 43, 0.85);
 }
 
 .bulls .class-button {
@@ -330,8 +338,10 @@ textarea:focus {
 }
 .bulls .class-button.selected {
   background-color: #3a0c0c;
-  box-shadow: 0 0 15px rgba(255, 165, 0, 0.6);
-  border: 2px solid orange;
+  border-color: #ffa500;
+  box-shadow:
+    0 0 0 2px #af9b62,
+    0 0 16px rgba(255, 165, 0, 0.85);
 }
 
 .centurions .class-button {
@@ -343,8 +353,10 @@ textarea:focus {
 }
 .centurions .class-button.selected {
   background-color: #1b6e1b;
-  box-shadow: 0 0 15px rgba(255, 255, 0, 0.6);
-  border: 2px solid #ff0;
+  border-color: #ffff00;
+  box-shadow:
+    0 0 0 2px #af9b62,
+    0 0 16px rgba(255, 255, 0, 0.75);
 }
 
 .tigers .class-button {
@@ -356,8 +368,10 @@ textarea:focus {
 }
 .tigers .class-button.selected {
   background-color: #b84100;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
-  border: 2px solid #000;
+  border-color: #1a2f5a;
+  box-shadow:
+    0 0 0 2px #af9b62,
+    0 0 16px rgba(26, 47, 90, 0.9);
 }
 
 .flight-count {
