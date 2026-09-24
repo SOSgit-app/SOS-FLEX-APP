@@ -4,16 +4,23 @@ import { SQUADRONS } from './flights'
 import { generateFlexB, generateSchedule, parseRefereeList, type Match } from './scheduler'
 import {
   fieldsFromSchedule,
-  formatTime12,
   reorderFieldMatches,
   retimedFieldSchedule,
+  splitTime12,
+  squadronClass,
 } from './scheduleOps'
 import { defaultState, loadState, saveState, type AppState } from './store'
 import './App.css'
 
-function sqClass(flight: string): string {
-  const s = flight?.[0]
-  return s === 'A' || s === 'B' || s === 'C' || s === 'F' ? `sq-${s}` : ''
+function TimeDisplay({ hhmm }: { hhmm: string }) {
+  const parts = splitTime12(hhmm)
+  if (!parts) return <span className="time-value">—</span>
+  return (
+    <>
+      <span className="time-value">{parts.clock}</span>
+      <span className="time-meridian">{parts.meridian}</span>
+    </>
+  )
 }
 
 export default function App() {
@@ -62,7 +69,6 @@ export default function App() {
       map.get(m.field)!.push(m)
     }
     for (const [, list] of map) list.sort((a, b) => a.match_number - b.match_number)
-    // Ensure empty fields still show when we have field assignments
     const maxField = Math.max(state.numFields, ...activeSchedule.map((m) => m.field), 0)
     for (let i = 1; i <= maxField; i++) {
       if (!map.has(i)) map.set(i, [])
@@ -172,6 +178,13 @@ export default function App() {
     notify('Schedule regenerated')
   }
 
+  const startOver = () => {
+    localStorage.removeItem('sos-flex-pages-state-v2')
+    localStorage.removeItem('sos-flex-pages-state-v1')
+    setState(defaultState())
+    setRefereeText('')
+  }
+
   const applyUploaded = async (file: File, type: 'flex_a' | 'flex_b') => {
     try {
       const parsed = await parseScheduleWorkbook(file)
@@ -185,7 +198,6 @@ export default function App() {
           flexBStartTime: parsed.startTime,
           mode: 'flex_b',
           step: 'schedule',
-          // keep any existing Flex A if present
           schedule: s.schedule.length ? s.schedule : parsed.schedule,
           fields: s.fields.length ? s.fields : parsed.fields,
         }))
@@ -297,13 +309,21 @@ export default function App() {
     setActiveSchedule(reorderFieldMatches(activeSchedule, field, from.index, toIndex), false)
   }
 
-  return (
-    <div className="app">
-      <header className="brand">
-        <div className="brand-title">FLEX SCHEDULING TOOL</div>
-        <div className="brand-sub">GitHub Pages edition (runs fully in your browser)</div>
-      </header>
+  const download = () => {
+    downloadScheduleExcel({
+      schedule: activeSchedule,
+      className: title,
+      startTime: activeStart,
+      arrivalTime: state.arrivalTime,
+      referees: state.referees,
+      headReferees: state.headReferees,
+      unassignedReferees: state.unassignedReferees,
+    })
+    notify('Schedule saved / downloaded')
+  }
 
+  return (
+    <div className={`app step-${state.step}`}>
       {toast && <div className="toast">{toast}</div>}
 
       <input
@@ -319,209 +339,204 @@ export default function App() {
       />
 
       {state.step === 'setup' && (
-        <div className="card">
-          <h1>Flex A Initial Setup</h1>
+        <div className="setup-screen">
+          <div className="main-title">FLEX SCHEDULING TOOL</div>
+          <div className="container narrow">
+            <h1>Flex A Initial Setup</h1>
 
-          <button type="button" className="upload-btn" onClick={() => setUploadTypeOpen(true)}>
-            Upload Existing Schedule
-          </button>
-          <div className="or-divider">— OR —</div>
-
-          <form onSubmit={onCreateSetup}>
-            <label>
-              Class Name
-              <input
-                value={state.className}
-                onChange={(e) => update({ className: e.target.value })}
-                required
-              />
-            </label>
-            <label>
-              Start Time
-              <input
-                type="time"
-                value={state.startTime}
-                onChange={(e) => update({ startTime: e.target.value })}
-                required
-              />
-            </label>
-            <label>
-              Arrival Time
-              <input
-                type="time"
-                value={state.arrivalTime}
-                onChange={(e) => update({ arrivalTime: e.target.value })}
-                required
-              />
-            </label>
-            <label className="row">
-              <input
-                type="checkbox"
-                checked={state.flexible}
-                onChange={(e) => update({ flexible: e.target.checked })}
-              />
-              Enable Flexible Scheduling
-            </label>
-            <p className="hint">
-              Flexible scheduling allows same-squadron matchups when needed (e.g. fewer squadrons).
-            </p>
-            <button type="submit" className="primary">
-              Create New Schedule
+            <button type="button" className="upload-btn" onClick={() => setUploadTypeOpen(true)}>
+              Upload Existing Schedule
             </button>
-          </form>
+            <div className="or-divider">- OR -</div>
+
+            <form onSubmit={onCreateSetup}>
+              <div className="form-group">
+                <label htmlFor="class_name">Class Name:</label>
+                <input
+                  id="class_name"
+                  value={state.className}
+                  onChange={(e) => update({ className: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="start_time">Start Time (24-hour format):</label>
+                <input
+                  id="start_time"
+                  type="time"
+                  value={state.startTime}
+                  onChange={(e) => update({ startTime: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="arrival_time">Arrival Time (24-hour format):</label>
+                <input
+                  id="arrival_time"
+                  type="time"
+                  value={state.arrivalTime}
+                  onChange={(e) => update({ arrivalTime: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="form-group flex-row">
+                <input
+                  id="flexible_scheduling"
+                  type="checkbox"
+                  checked={state.flexible}
+                  onChange={(e) => update({ flexible: e.target.checked })}
+                />
+                <label htmlFor="flexible_scheduling" className="inline-label">
+                  Enable Flexible Scheduling
+                </label>
+              </div>
+              <div className="info-box">
+                Flexible scheduling allows matches between flights of the same squadron. This is
+                useful for special class sessions with fewer squadrons (e.g. 2 squadrons with 19
+                flights).
+              </div>
+              <button type="submit" className="btn-gold full">
+                Create New Schedule
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
       {state.step === 'flights' && (
-        <form className="card wide" onSubmit={onGenerate}>
+        <div className="container medium">
+          <div className="main-title smaller">FLEX SCHEDULING TOOL</div>
           <h1>Flight Selection</h1>
           <p className="meta">
-            {state.className} · start {state.startTime} · arrival {state.arrivalTime}
+            {state.className} · Start {state.startTime} · Arrival {state.arrivalTime}
           </p>
 
-          <label>
-            Number of Fields
-            <input
-              type="number"
-              min={1}
-              max={16}
-              value={state.numFields}
-              onChange={(e) => update({ numFields: Number(e.target.value) || 8 })}
+          <form onSubmit={onGenerate}>
+            <div className="form-group">
+              <label htmlFor="num_fields">Number of Fields:</label>
+              <input
+                id="num_fields"
+                type="number"
+                min={1}
+                max={16}
+                value={state.numFields}
+                onChange={(e) => update({ numFields: Number(e.target.value) || 8 })}
+              />
+            </div>
+
+            {Object.entries(SQUADRONS).map(([key, group]) => (
+              <section key={key} className={`flight-section ${key}`}>
+                <div className="flight-header">
+                  <div className="flight-title">{group.label}</div>
+                </div>
+                <div className="class-grid">
+                  {group.flights.map((flight) => (
+                    <button
+                      key={flight}
+                      type="button"
+                      className={`class-button ${state.selected.includes(flight) ? 'selected' : ''}`}
+                      onClick={() => toggleFlight(flight)}
+                    >
+                      {flight}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ))}
+
+            <div className="flight-count">Selected Flights: {state.selected.length}</div>
+
+            <h2>Add Referees</h2>
+            <p className="hint">Paste or type: Flight, then space/tab, then instructor name</p>
+            <textarea
+              rows={8}
+              value={refereeText}
+              onChange={(e) => setRefereeText(e.target.value)}
+              placeholder={'A08 Maj William Hashman\nB17 Maj Raquel Lewis'}
             />
-          </label>
 
-          {Object.entries(SQUADRONS).map(([key, group]) => (
-            <section key={key} className={`squadron ${key}`}>
-              <h2>{group.label}</h2>
-              <div className="flight-grid">
-                {group.flights.map((flight) => (
-                  <button
-                    key={flight}
-                    type="button"
-                    className={`flight-btn ${state.selected.includes(flight) ? 'selected' : ''}`}
-                    onClick={() => toggleFlight(flight)}
-                  >
-                    {flight}
-                  </button>
-                ))}
-              </div>
-            </section>
-          ))}
-
-          <p className="count">Selected Flights: {state.selected.length}</p>
-
-          <h2>Add Referees</h2>
-          <p className="hint">Paste or type: Flight, then space/tab, then instructor name</p>
-          <textarea
-            rows={8}
-            value={refereeText}
-            onChange={(e) => setRefereeText(e.target.value)}
-            placeholder={'A08 Maj William Hashman\nB17 Maj Raquel Lewis'}
-          />
-
-          <div className="actions">
-            <button type="button" className="secondary" onClick={() => update({ step: 'setup' })}>
-              Back
-            </button>
-            <button type="submit" className="primary">
-              Continue
-            </button>
-          </div>
-        </form>
+            <div className="bottom-actions split">
+              <button type="button" className="return-button" onClick={() => update({ step: 'setup' })}>
+                Back
+              </button>
+              <button type="submit" className="btn-gold">
+                Continue
+              </button>
+            </div>
+          </form>
+        </div>
       )}
 
       {state.step === 'schedule' && (
-        <div className="card wide schedule-view">
-          <h1>{title}</h1>
-          {state.flexible && <div className="flex-badge">Flexible Scheduling Enabled</div>}
+        <div className="container schedule">
+          <h1>FLEX SCHEDULE</h1>
 
-          <div className="time-controls">
-            <div className="time-group">
-              <span className="time-label">Arrival:</span>
-              <strong>{formatTime12(state.arrivalTime)}</strong>
-              <input
-                type="time"
-                value={draftArrival}
-                onChange={(e) => setDraftArrival(e.target.value)}
-              />
-              <button type="button" className="tiny" onClick={applyArrival}>
-                Update Arrival
-              </button>
-            </div>
-            <div className="time-group">
-              <span className="time-label">Start:</span>
-              <strong>{formatTime12(activeStart)}</strong>
-              <input
-                type="time"
-                value={draftStart}
-                onChange={(e) => setDraftStart(e.target.value)}
-              />
-              <button type="button" className="tiny" onClick={applyStart}>
-                Update Start
-              </button>
-            </div>
-          </div>
-
-          <div className="actions wrap">
-            <button type="button" className="secondary" onClick={() => update({ step: 'flights' })}>
-              Edit Flights
-            </button>
-            <button type="button" className="secondary" onClick={onRegenerate}>
-              Regenerate
-            </button>
-            {state.mode === 'flex_a' ? (
-              <button type="button" className="primary" onClick={onFlexB}>
-                Generate Flex B
-              </button>
-            ) : (
-              <button type="button" className="primary" onClick={() => update({ mode: 'flex_a' })}>
-                View Flex A
-              </button>
+          <div className="schedule-info">
+            {state.flexible && (
+              <div className="flexible-scheduling-badge">Flexible Scheduling Enabled</div>
             )}
-            <button
-              type="button"
-              className="gold"
-              onClick={() => {
-                downloadScheduleExcel({
-                  schedule: activeSchedule,
-                  className: title,
-                  startTime: activeStart,
-                  arrivalTime: state.arrivalTime,
-                  referees: state.referees,
-                  headReferees: state.headReferees,
-                  unassignedReferees: state.unassignedReferees,
-                })
-                notify('Excel downloaded')
-              }}
-            >
-              Download Excel
-            </button>
-            <button type="button" className="upload-btn compact" onClick={() => setUploadTypeOpen(true)}>
-              Re-upload Excel
-            </button>
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => {
-                localStorage.removeItem('sos-flex-pages-state-v2')
-                localStorage.removeItem('sos-flex-pages-state-v1')
-                setState(defaultState())
-                setRefereeText('')
-              }}
-            >
-              Start Over
-            </button>
-          </div>
-
-          <div className="field-assign">
-            <h2>Field Assignments</h2>
-            <div className="assign-grid">
-              {activeFields.map((flights, i) => (
-                <div key={i} className="assign-card">
-                  <strong>Field {i + 1}</strong>
-                  <span>{flights.join(', ') || '—'}</span>
+            <div className="schedule-content">
+              <div className="schedule-top">
+                <h2 className="class-heading">{title}</h2>
+                <div className="schedule-top-actions">
+                  <button type="button" className="return-button" onClick={startOver}>
+                    Return to Start
+                  </button>
+                  <button type="button" className="return-button danger" onClick={onRegenerate}>
+                    Regenerate Schedule
+                  </button>
                 </div>
-              ))}
+              </div>
+
+              <div className="time-control-container">
+                <div className="time-control-group">
+                  <span className="time-label">Arrival Time:</span>
+                  <TimeDisplay hhmm={state.arrivalTime} />
+                  <form
+                    className="time-adjust-form"
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      applyArrival()
+                    }}
+                  >
+                    <input
+                      type="time"
+                      value={draftArrival}
+                      onChange={(e) => setDraftArrival(e.target.value)}
+                      required
+                    />
+                    <button type="submit" className="update-time-button">
+                      Update Arrival Time
+                    </button>
+                  </form>
+                </div>
+
+                <div className="time-control-group">
+                  <span className="time-label">Start Time:</span>
+                  <TimeDisplay hhmm={activeStart} />
+                  <form
+                    className="time-adjust-form"
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      applyStart()
+                    }}
+                  >
+                    <input
+                      type="time"
+                      value={draftStart}
+                      onChange={(e) => setDraftStart(e.target.value)}
+                      required
+                    />
+                    <button type="submit" className="update-time-button">
+                      Update Start Time
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <div className="flight-count">
+                Total Matches: {activeSchedule.length} · Flights: {state.selected.length || '—'}
+              </div>
             </div>
           </div>
 
@@ -533,16 +548,22 @@ export default function App() {
             )
 
             return (
-              <section key={field} className="field-block">
+              <section key={field} className="field-section">
                 <div className="field-head">
                   <h2>Field {field}</h2>
-                  <button type="button" className="tiny" onClick={() => setAddRefField(field)}>
+                  <button
+                    type="button"
+                    className="add-referee-btn"
+                    onClick={() => setAddRefField(field)}
+                  >
                     Add Referee
                   </button>
                 </div>
 
                 <div className="referee-section">
-                  <strong>Referees</strong>
+                  <div className="referee-section-head">
+                    <strong>Referees:</strong>
+                  </div>
                   <div className="referee-list">
                     {flightRefs.map((flight) => {
                       const name = state.referees[flight]
@@ -550,22 +571,21 @@ export default function App() {
                         <div key={flight} className="referee-entry">
                           <button
                             type="button"
-                            className="delete-ref"
+                            className="delete-referee-btn"
                             onClick={() => deleteFlightReferee(flight)}
                             aria-label="Delete referee"
                           >
                             ×
                           </button>
-                          <span className="ref-name">
-                            {name} <em>({flight})</em>
-                          </span>
-                          <label className="head-toggle">
+                          <div className="ref-name">{name}</div>
+                          <label className="checkbox-container">
+                            Head Referee
                             <input
                               type="checkbox"
                               checked={Boolean(state.headReferees[name])}
                               onChange={(e) => toggleHeadRef(name, e.target.checked)}
                             />
-                            Head Referee
+                            <span className="checkmark" />
                           </label>
                         </div>
                       )
@@ -574,30 +594,43 @@ export default function App() {
                       <div key={name} className="referee-entry">
                         <button
                           type="button"
-                          className="delete-ref"
+                          className="delete-referee-btn"
                           onClick={() => deleteManualReferee(name)}
                           aria-label="Delete referee"
                         >
                           ×
                         </button>
-                        <span className="ref-name">
+                        <div className="ref-name">
                           {name}
-                          {data.is_lead ? ' · Lead' : ''}
-                        </span>
-                        <label className="head-toggle">
+                          {data.is_lead ? ' (Lead)' : ''}
+                        </div>
+                        <label className="checkbox-container">
+                          Head Referee
                           <input
                             type="checkbox"
                             checked={Boolean(state.headReferees[name] || data.is_head)}
                             onChange={(e) => toggleHeadRef(name, e.target.checked)}
                           />
-                          Head Referee
+                          <span className="checkmark" />
                         </label>
                       </div>
                     ))}
                     {!flightRefs.length && !manuals.length && (
-                      <p className="hint">No referees assigned to this field.</p>
+                      <div className="hint-inline">No referees assigned</div>
                     )}
                   </div>
+                </div>
+
+                <div className="field-flights">
+                  <strong>Assigned Flights:</strong>{' '}
+                  {assigned.length
+                    ? assigned.map((flight, i) => (
+                        <span key={flight}>
+                          <span className={`flight-chip ${squadronClass(flight)}`}>{flight}</span>
+                          {i < assigned.length - 1 ? ', ' : ''}
+                        </span>
+                      ))
+                    : '—'}
                 </div>
 
                 <table>
@@ -615,11 +648,22 @@ export default function App() {
                         key={`${m.field}-${m.match_number}-${index}`}
                         draggable
                         className="match-row"
-                        onDragStart={() => {
+                        onDragStart={(e) => {
                           dragRef.current = { field, index }
+                          ;(e.currentTarget as HTMLElement).classList.add('dragging')
                         }}
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={() => onDropReorder(field, index)}
+                        onDragEnd={(e) => {
+                          ;(e.currentTarget as HTMLElement).classList.remove('dragging')
+                        }}
+                        onDragOver={(e) => {
+                          e.preventDefault()
+                          e.currentTarget.classList.add('drag-over')
+                        }}
+                        onDragLeave={(e) => e.currentTarget.classList.remove('drag-over')}
+                        onDrop={(e) => {
+                          e.currentTarget.classList.remove('drag-over')
+                          onDropReorder(field, index)
+                        }}
                       >
                         <td>
                           <input
@@ -652,42 +696,85 @@ export default function App() {
                             }
                           />
                         </td>
-                        <td className="matchup">
-                          <input
-                            className={`cell-input flight ${sqClass(m.flight1)}`}
-                            value={m.flight1}
-                            onChange={(e) =>
-                              patchMatch(field, m.match_number, { flight1: e.target.value })
-                            }
-                          />
-                          <span className="vs">vs</span>
-                          <input
-                            className={`cell-input flight ${sqClass(m.flight2)}`}
-                            value={m.flight2}
-                            onChange={(e) =>
-                              patchMatch(field, m.match_number, { flight2: e.target.value })
-                            }
-                          />
+                        <td>
+                          <div className="matchup">
+                            <input
+                              className={`cell-input flight ${squadronClass(m.flight1)}`}
+                              value={m.flight1}
+                              onChange={(e) =>
+                                patchMatch(field, m.match_number, { flight1: e.target.value })
+                              }
+                            />
+                            <span className="vs">vs</span>
+                            <input
+                              className={`cell-input flight ${squadronClass(m.flight2)}`}
+                              value={m.flight2}
+                              onChange={(e) =>
+                                patchMatch(field, m.match_number, { flight2: e.target.value })
+                              }
+                            />
+                          </div>
                         </td>
                       </tr>
                     ))}
                     {!matches.length && (
                       <tr>
-                        <td colSpan={4} className="hint">
+                        <td colSpan={4} className="hint-inline">
                           No matches on this field
                         </td>
                       </tr>
                     )}
                   </tbody>
                 </table>
-                <button type="button" className="tiny" onClick={() => updateFieldTimes(field)}>
-                  Update Time
-                </button>
+
+                <div className="field-footer">
+                  <button
+                    type="button"
+                    className="update-time-button"
+                    onClick={() => updateFieldTimes(field)}
+                  >
+                    Update Time
+                  </button>
+                </div>
               </section>
             )
           })}
 
-          <p className="hint save-note">Edits autosave in this browser.</p>
+          <div className="bottom-bar">
+            <div className="bottom-left">
+              <button
+                type="button"
+                className="return-button gold"
+                onClick={() => update({ step: 'flights' })}
+              >
+                Return to Flight Selection
+              </button>
+              <button type="button" className="upload-btn" onClick={() => setUploadTypeOpen(true)}>
+                Re-upload Excel
+              </button>
+            </div>
+            <div className="bottom-right">
+              <button type="button" className="return-button blue" onClick={download}>
+                Save Changes
+              </button>
+              <button type="button" className="return-button green" onClick={download}>
+                Download Schedule
+              </button>
+              {state.mode === 'flex_a' ? (
+                <button type="button" className="return-button green" onClick={onFlexB}>
+                  Schedule Flex B
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="return-button green"
+                  onClick={() => update({ mode: 'flex_a' })}
+                >
+                  Return to Flex A
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -704,7 +791,7 @@ export default function App() {
                 Flex B Schedule
               </button>
             </div>
-            <button type="button" className="secondary" onClick={() => setUploadTypeOpen(false)}>
+            <button type="button" className="modal-btn cancel" onClick={() => setUploadTypeOpen(false)}>
               Cancel
             </button>
           </div>
@@ -714,37 +801,39 @@ export default function App() {
       {addRefField != null && (
         <div className="modal" onClick={() => setAddRefField(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Add Referee · Field {addRefField}</h2>
-            <label>
-              Referee Name
-              <input
-                value={newRefName}
-                onChange={(e) => setNewRefName(e.target.value)}
-                placeholder="Referee Name"
-                autoFocus
-              />
-            </label>
-            <label className="row">
-              <input
-                type="checkbox"
-                checked={newRefHead}
-                onChange={(e) => setNewRefHead(e.target.checked)}
-              />
-              Head Referee
-            </label>
-            <label className="row">
-              <input
-                type="checkbox"
-                checked={newRefLead}
-                onChange={(e) => setNewRefLead(e.target.checked)}
-              />
-              Lead Referee
-            </label>
-            <div className="modal-actions">
-              <button type="button" className="primary" onClick={addManualReferee}>
+            <h2>Add Referee</h2>
+            <input
+              className="modal-input"
+              value={newRefName}
+              onChange={(e) => setNewRefName(e.target.value)}
+              placeholder="Referee Name"
+              autoFocus
+            />
+            <div className="modal-checks">
+              <label className="checkbox-container">
+                Head Referee
+                <input
+                  type="checkbox"
+                  checked={newRefHead}
+                  onChange={(e) => setNewRefHead(e.target.checked)}
+                />
+                <span className="checkmark" />
+              </label>
+              <label className="checkbox-container">
+                Lead Referee
+                <input
+                  type="checkbox"
+                  checked={newRefLead}
+                  onChange={(e) => setNewRefLead(e.target.checked)}
+                />
+                <span className="checkmark" />
+              </label>
+            </div>
+            <div className="modal-buttons">
+              <button type="button" className="modal-btn confirm" onClick={addManualReferee}>
                 Add
               </button>
-              <button type="button" className="secondary" onClick={() => setAddRefField(null)}>
+              <button type="button" className="modal-btn cancel" onClick={() => setAddRefField(null)}>
                 Cancel
               </button>
             </div>

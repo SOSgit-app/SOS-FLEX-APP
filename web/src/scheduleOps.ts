@@ -67,16 +67,37 @@ export function retimedFieldSchedule(
 }
 
 export function formatTime12(hhmm: string): string {
-  if (!hhmm) return ''
+  const parts = splitTime12(hhmm)
+  if (!parts) return hhmm || ''
+  return `${parts.clock} ${parts.meridian}`
+}
+
+export function splitTime12(hhmm: string): { clock: string; meridian: string } | null {
+  if (!hhmm) return null
   try {
     const [hStr, m] = hhmm.split(':')
     let h = Number(hStr)
-    const suffix = h >= 12 ? 'PM' : 'AM'
+    const meridian = h >= 12 ? 'PM' : 'AM'
     h = h % 12
     if (h === 0) h = 12
-    return `${String(h).padStart(2, '0')}:${m} ${suffix}`
+    return { clock: `${String(h).padStart(2, '0')}:${m}`, meridian }
   } catch {
-    return hhmm
+    return null
+  }
+}
+
+export function squadronClass(flight: string): string {
+  switch (flight?.[0]) {
+    case 'A':
+      return 'knights'
+    case 'B':
+      return 'bulls'
+    case 'C':
+      return 'centurions'
+    case 'F':
+      return 'tigers'
+    default:
+      return ''
   }
 }
 
