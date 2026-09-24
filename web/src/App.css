@@ -293,15 +293,18 @@ textarea:focus {
 }
 
 .class-button {
-  padding: 8px;
+  padding: 10px 8px;
+  min-height: 40px;
   /* Transparent border reserves space so selection doesn't jump layout */
   border: 3px solid transparent;
   border-radius: 4px;
   cursor: pointer;
   text-align: center;
   transition: all 0.2s ease-in-out;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.95rem;
   box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
 /* Gold ring reads on every squadron fill (esp. white Knights) */
@@ -627,19 +630,20 @@ textarea:focus {
   margin: 0 2px;
 }
 
-.knights {
+/* Scope squadron fills to chips only — NOT the whole flight-section */
+.flight-chip.knights {
   background-color: #fff;
   color: #f00;
 }
-.bulls {
+.flight-chip.bulls {
   background-color: #4b0f0f;
   color: #ffa500;
 }
-.centurions {
+.flight-chip.centurions {
   background-color: #228b22;
   color: #ff0;
 }
-.tigers {
+.flight-chip.tigers {
   background-color: #e65100;
   color: #000;
 }
