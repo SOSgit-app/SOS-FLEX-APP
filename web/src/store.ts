@@ -1,3 +1,6 @@
+import type { Match } from './scheduler'
+import type { ManualReferee } from './scheduleOps'
+
 export type AppState = {
   step: 'setup' | 'flights' | 'schedule'
   className: string
@@ -7,20 +10,26 @@ export type AppState = {
   selected: string[]
   numFields: number
   referees: Record<string, string>
-  schedule: import('./scheduler').Match[]
+  /** Keys are referee names marked as head refs */
+  headReferees: Record<string, boolean>
+  /** Manually added (unassigned-to-flight) referees by name */
+  unassignedReferees: Record<string, ManualReferee>
+  schedule: Match[]
   fields: string[][]
   mode: 'flex_a' | 'flex_b'
-  flexBSchedule: import('./scheduler').Match[]
+  flexBSchedule: Match[]
   flexBFields: string[][]
   flexBStartTime: string
 }
 
-const KEY = 'sos-flex-pages-state-v1'
+const KEY = 'sos-flex-pages-state-v2'
 
 export function loadState(): AppState | null {
   try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? (JSON.parse(raw) as AppState) : null
+    const raw = localStorage.getItem(KEY) ?? localStorage.getItem('sos-flex-pages-state-v1')
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<AppState>
+    return { ...defaultState(), ...parsed, headReferees: parsed.headReferees ?? {}, unassignedReferees: parsed.unassignedReferees ?? {} }
   } catch {
     return null
   }
@@ -40,6 +49,8 @@ export function defaultState(): AppState {
     selected: [],
     numFields: 8,
     referees: {},
+    headReferees: {},
+    unassignedReferees: {},
     schedule: [],
     fields: [],
     mode: 'flex_a',

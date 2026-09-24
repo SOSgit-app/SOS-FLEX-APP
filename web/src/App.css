@@ -15,7 +15,7 @@ body {
 }
 
 .app {
-  max-width: 960px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 24px 16px 64px;
 }
@@ -49,7 +49,7 @@ body {
 }
 
 .card.wide {
-  max-width: 900px;
+  max-width: 1040px;
 }
 
 h1 {
@@ -106,7 +106,9 @@ textarea {
 
 .primary,
 .secondary,
-.gold {
+.gold,
+.upload-btn,
+.tiny {
   border: none;
   border-radius: 6px;
   padding: 12px 16px;
@@ -131,6 +133,34 @@ textarea {
 .gold {
   background: #2d5a27;
   color: #fff;
+}
+
+.upload-btn {
+  display: block;
+  width: 100%;
+  background: #af9b62;
+  color: #1a2f5a;
+  text-align: center;
+}
+
+.upload-btn.compact {
+  width: auto;
+  display: inline-block;
+}
+
+.or-divider {
+  text-align: center;
+  margin: 18px 0;
+  opacity: 0.7;
+  letter-spacing: 0.12em;
+}
+
+.tiny {
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  background: #af9b62;
+  color: #1a2f5a;
+  margin-top: 10px;
 }
 
 .actions {
@@ -211,6 +241,24 @@ textarea {
 .field-block {
   margin-top: 22px;
   overflow-x: auto;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+}
+
+.field-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.field-head h2 {
+  margin: 0;
+}
+
+.field-head .tiny {
+  margin-top: 0;
 }
 
 table {
@@ -246,4 +294,197 @@ th {
 .sq-F {
   background: #e65100;
   color: #000;
+}
+
+.cell-input {
+  width: 100%;
+  margin: 0;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+  text-align: center;
+}
+
+.cell-input.narrow {
+  width: 64px;
+}
+
+.cell-input.flight {
+  width: 72px;
+  font-weight: 700;
+}
+
+.matchup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.vs {
+  opacity: 0.7;
+  font-size: 0.8rem;
+}
+
+.match-row {
+  cursor: grab;
+}
+
+.time-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
+  justify-content: center;
+}
+
+.time-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+
+.time-group input[type='time'] {
+  width: auto;
+  margin: 0;
+}
+
+.time-label {
+  color: #c5b178;
+}
+
+.flex-badge {
+  text-align: center;
+  color: #af9b62;
+  background: rgba(175, 155, 98, 0.2);
+  display: inline-block;
+  margin: 0 auto 12px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 700;
+  width: fit-content;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.referee-section {
+  margin: 12px 0 16px;
+}
+
+.referee-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.referee-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 8px 10px;
+}
+
+.ref-name {
+  flex: 1;
+}
+
+.ref-name em {
+  opacity: 0.7;
+  font-style: normal;
+  font-size: 0.85em;
+}
+
+.delete-ref {
+  border: none;
+  background: #c0392b;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.head-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-content {
+  background: #1a2f5a;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 24px;
+  width: min(440px, 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.modal-actions .primary,
+.modal-actions .upload-btn {
+  width: auto;
+  margin: 0;
+}
+
+.toast {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background: #2d5a27;
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 6px;
+  z-index: 1100;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.save-note {
+  text-align: center;
+  margin-top: 24px;
+}
+
+@media (max-width: 700px) {
+  .matchup {
+    flex-direction: column;
+  }
+  .head-toggle {
+    white-space: normal;
+  }
 }
