@@ -310,7 +310,7 @@ export default function App() {
   }
 
   const download = () => {
-    downloadScheduleExcel({
+    void downloadScheduleExcel({
       schedule: activeSchedule,
       className: title,
       startTime: activeStart,
@@ -318,8 +318,7 @@ export default function App() {
       referees: state.referees,
       headReferees: state.headReferees,
       unassignedReferees: state.unassignedReferees,
-    })
-    notify('Schedule saved / downloaded')
+    }).then(() => notify('Schedule saved / downloaded'))
   }
 
   return (
